@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Yourss PhotoBooth</title>
+    <title>Take A Wondenfull Smile</title>
     <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -239,15 +239,15 @@
             You Have The Brightest SMILEE!
         </p>
         <p style="font-family: 'Pacifico', cursive; font-size: 1.2rem; color: #d84315;">
-            The world got brighter the day you were born and honestly, it's been showing off ever since.<br>
-            Wishing you laughter that sticks, smiles that stay, and someone who keeps choosing you (👀 maybe me?).<br>
-            Go be magic today." ✨🎂
+            The day you were born, the stars leaned in closer — the world’s been shining brighter ever since. May your heart be full of laughter, your smile linger like a sunrise<br>
+            and may someone always choose you… perhaps, someone already does (👀).<br>
+            Now go, be the wonder you are. ✨🎂
         </p></p>
         <button id="restartButton">Start New Session</button>
     </div>
 
     <h1>🎉 Hello Hello Hello Theree ! :P 🎉</h1>
-    <h2>Capture Your Memories!</h2>
+    <h2>Capture Your WONDERFULL Memories!</h2>
     <p>and send it to me....</p>
 
     <div id="mainContent">
@@ -261,7 +261,7 @@
             <img id="previewImage" alt="Framed Photo Strip">
             <div class="controls">
                 <button id="downloadButton">💾 Download Photo</button>
-                <button id="retakeButton">🔄 Retake Photo</button>
+                <button id="retakeButton">🔄 Wanna Try Again?</button>
             </div>
         </div>
     </div>
@@ -422,7 +422,7 @@
         downloadButton.addEventListener('click', () => {
             const a = document.createElement('a');
             a.href = currentPhotoDataURL;
-            a.download = 'Kirimin_Ke_Aku_Ya.png'; // Download as PNG
+            a.download = 'YoureDoingGood.png'; // Download as PNG
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
