@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Take A Wondenfull Smile</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --y2k-yellow: #ffeb3b;
+            --y2k-orange: #f57f17;
+            --y2k-light-yellow: #fffde7;
+            --y2k-bright-yellow: #fdd835;
+            --y2k-bg-gradient-start: #fff3cd;
+            --y2k-bg-gradient-end: #ffecb3;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Comic Sans MS', 'Pacifico', cursive;
+            background: linear-gradient(135deg, var(--y2k-bg-gradient-start), var(--y2k-bg-gradient-end));
+            color: var(--y2k-orange);
+            text-align: center;
+            padding: 1rem;
+            overflow-y: auto; /* Allow vertical scrolling if content overflows */
+            overflow-x: hidden; /* Prevent horizontal scrolling */
+            background-image: url('https://www.transparenttextures.com/patterns/stardust.png');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            justify-content: center;
+            position: relative;
+        }
+        h1 {
+            font-family: 'Press Start 2P', cursive;
+            color: var(--y2k-bright-yellow);
+            text-shadow: 2px 2px 0px #ffffff;
+            margin-bottom: 1rem;
+            z-index: 10;
+            font-size: 1.8rem;
+        }
+        #mainContent {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            width: 100%;
+        }
+
+        #video {
+            width: 90%;
+            max-width: 400px;
+            aspect-ratio: 4/3;
+            border: 8px dotted var(--y2k-yellow);
+            border-radius: 1.5rem;
+            margin-top: 1rem;
+            box-shadow: 0 0 20px var(--y2k-bright-yellow);
+            display: block;
+        }
+        #previewContainer {
+            display: none;
+            margin: 1rem auto;
+            width: 90%;
+            max-width: 640px; /* Adjusted max width for the frame */
+        }
+        #previewImage {
+            width: 100%;
+            height: auto;
+            border: 8px dotted var(--y2k-yellow);
+            border-radius: 1.5rem;
+            box-shadow: 0 0 20px var(--y2k-bright-yellow);
+        }
+        .controls {
+            margin: 1rem auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        button {
+            background: var(--y2k-light-yellow);
+            border: 2px solid var(--y2k-yellow);
+            padding: 12px 24px;
+            margin: 10px;
+            font-size: 1.1rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: 0.3s;
+            color: var(--y2k-orange);
+            font-weight: bold;
+            box-shadow: 2px 2px 5px #ffd54f;
+            white-space: nowrap;
+        }
+        button:hover {
+            background: var(--y2k-yellow);
+            transform: translateY(-2px);
+        }
+
+        #countdownOverlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            color: white;
+            font-size: 8rem;
+            font-weight: bold;
+            text-shadow: 4px 4px 10px black;
+            animation: fadeIn 0.3s ease-out;
+            pointer-events: none;
+        }
+        #countdownOverlay.hidden {
+            display: none;
+        }
+
+        .shutter {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: white;
+            opacity: 0;
+            z-index: 1000;
+            pointer-events: none;
+            transition: opacity 0.1s ease-out;
+        }
+        .shutter.flash {
+            opacity: 0.8;
+        }
+
+        #thankYouScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--y2k-bright-yellow), var(--y2k-yellow), var(--y2k-light-yellow));
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease-in-out;
+            color: #d84315;
+            font-family: 'Press Start 2P', cursive;
+            text-shadow: 2px 2px 0px #ffffff;
+        }
+        #thankYouScreen.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+        #thankYouScreen h2 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        #thankYouScreen p {
+            font-size: 1.5rem;
+            text-align: center;
+        }
+
+        .stars {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background-image: url('https://www.transparenttextures.com/patterns/stardust.png');
+            background-size: cover;
+            background-repeat: no-repeat;
+            pointer-events: none;
+            opacity: 0.2;
+            z-index: 1;
+        }
+        .sparkle {
+            animation: twinkle 2s infinite alternate;
+        }
+        .floating-emoji {
+            position: absolute;
+            font-size: 2rem;
+            animation: float 6s infinite ease-in-out;
+            z-index: 500;
+        }
+        .floating-emoji:nth-child(even) { animation-duration: 6s; animation-delay: 0s; }
+        .floating-emoji:nth-child(3n) { animation-duration: 6s; animation-delay: 0s; }
+
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(20deg); }
+            100% { transform: translateY(0) rotate(-20deg); }
+        }
+        @keyframes twinkle {
+            from { opacity: 0.2; }
+            to { opacity: 0.6; }
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 1.5rem; }
+            button { font-size: 1rem; padding: 10px 20px; }
+            #countdownOverlay { font-size: 6rem; }
+            .floating-emoji { font-size: 2rem; }
+            #thankYouScreen h2 { font-size: 2rem; }
+            #thankYouScreen p { font-size: 1.2rem; }
+        }
+        @media (max-width: 480px) {
+            h1 { font-size: 1.2rem; }
+            button { font-size: 0.9rem; padding: 8px 15px; margin: 5px; }
+            #countdownOverlay { font-size: 4rem; }
+            .floating-emoji { font-size: 1.5rem; }
+            #video, #previewContainer { border-width: 5px; }
+            #thankYouScreen h2 { font-size: 1.5rem; }
+            #thankYouScreen p { font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars sparkle"></div>
+    <div class="shutter" id="shutter"></div>
+    <div id="countdownOverlay" class="hidden"></div>
+    <div id="thankYouScreen">
+        <h2>THANK YOU! 🎉</h2>
+        <p style="font-family: 'Pacifico', cursive; font-size: 2rem; color: #f57f17; margin-bottom: 0.5rem;">
+            You Have The Brightest SMILEE!
+        </p>
+        <p style="font-family: 'Pacifico', cursive; font-size: 1.2rem; color: #d84315;">
+            The day you were born, the stars leaned in closer — the world’s been shining brighter ever since. May your heart be full of laughter, your smile linger like a sunrise<br>
+            and may someone always choose you… perhaps, someone already does (👀).<br>
+            Now go, be the wonder you are. ✨🎂
+        </p></p>
+        <button id="restartButton">Start New Session</button>
+    </div>
+
+    <h1>🎉 Hello Hello Hello Theree ! :P 🎉</h1>
+    <h2>Capture Your WONDERFULL Memories! u've made it this far</h2>
+    <p>maybe send it to me....</p>
+
+    <div id="mainContent">
+        <video id="video" autoplay playsinline></video>
+
+        <div class="controls" id="captureControls">
+            <button onclick="startPhotoSequence()">📸 Take Picture </button>
+        </div>
+
+        <div id="previewContainer">
+            <img id="previewImage" alt="Framed Photo Strip">
+            <div class="controls">
+                <button id="downloadButton">💾 Download Photo</button>
+                <button id="retakeButton">🔄 Wanna Try Again?</button>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="canvas" style="display:none;"></canvas>
+    <audio id="shutterSound">
+        <source src="cekrek.mp3" type="audio/mpeg"> Your browser does not support the audio element.
+    </audio>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const shutter = document.getElementById('shutter');
+        const previewContainer = document.getElementById('previewContainer');
+        const previewImage = document.getElementById('previewImage');
+        const downloadButton = document.getElementById('downloadButton');
+        const retakeButton = document.getElementById('retakeButton');
+        const captureControls = document.getElementById('captureControls');
+        const countdownOverlay = document.getElementById('countdownOverlay');
+        const shutterSound = document.getElementById('shutterSound');
+        const thankYouScreen = document.getElementById('thankYouScreen');
+        const restartButton = document.getElementById('restartButton');
+
+        let capturedCanvases = [];
+        let currentPhotoDataURL = '';
+
+        // *** PRECISE frameSlots WITH YOUR PROVIDED MEASUREMENTS ***
+        // These values define where the photos will be drawn INTO the frame's cutouts.
+        const frameSlots = [
+            { x: 217, y: 156, width: 591, height: 373 },  // Top slot
+            { x: 217, y: 577, width: 591, height: 372 },  // Middle slot
+            { x: 217, y: 994, width: 591, height: 372 }   // Bottom slot
+        ];
+
+        async function initCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
+                video.srcObject = stream;
+            } catch (err) {
+                alert('Camera access denied or not available. Please allow camera access and use HTTPS.');
+                console.error(err);
+            }
+        }
+
+        initCamera();
+
+        function flashShutter() {
+            shutter.classList.add('flash');
+            setTimeout(() => {
+                shutter.classList.remove('flash');
+            }, 150);
+        }
+
+        function playShutterSound() {
+            shutterSound.currentTime = 0;
+            shutterSound.play().catch(e => console.error("Error playing shutter sound:", e));
+        }
+
+        async function showCountdown(duration = 3) {
+            countdownOverlay.classList.remove('hidden');
+            for (let i = duration; i > 0; i--) {
+                countdownOverlay.textContent = i;
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+            countdownOverlay.textContent = 'SMILE!';
+            await new Promise(resolve => setTimeout(resolve, 700));
+            countdownOverlay.classList.add('hidden');
+            countdownOverlay.textContent = '';
+        }
+
+        async function takeSinglePhoto() {
+            await showCountdown();
+            flashShutter();
+            playShutterSound();
+            await new Promise(resolve => setTimeout(resolve, 250));
+
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = video.videoWidth;
+            tempCanvas.height = video.videoHeight;
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCtx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+
+            return tempCanvas;
+        }
+
+        async function startPhotoSequence() {
+            capturedCanvases = [];
+            video.style.display = 'block';
+            captureControls.style.display = 'none';
+
+            for (let i = 0; i < 3; i++) {
+                const photoCanvas = await takeSinglePhoto();
+                capturedCanvases.push(photoCanvas);
+            }
+
+            video.style.display = 'none';
+            mergePhotosWithFrame();
+        }
+
+        function mergePhotosWithFrame() {
+            const frame = new Image();
+            frame.onload = () => {
+                canvas.width = frame.width;
+                canvas.height = frame.height;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // --- CRITICAL DRAWING ORDER FOR "FRAME IN FRONT OF PICTURE" ---
+                // 1. Draw Photos FIRST. They will be placed to fill the canvas or specific slots.
+                for (let i = 0; i < capturedCanvases.length; i++) {
+                    const photoCanvas = capturedCanvases[i];
+                    const slot = frameSlots[i];
+
+                    if (photoCanvas && slot) {
+                        const aspectRatioPhoto = photoCanvas.width / photoCanvas.height;
+                        const aspectRatioSlot = slot.width / slot.height;
+
+                        let sx, sy, sWidth, sHeight; // Source rectangle in the photoCanvas
+
+                        // This logic crops the photo to fill the slot while maintaining aspect ratio
+                        if (aspectRatioPhoto > aspectRatioSlot) {
+                            // Photo is wider than slot, crop photo width
+                            sHeight = photoCanvas.height;
+                            sWidth = sHeight * aspectRatioSlot;
+                            sx = (photoCanvas.width - sWidth) / 2;
+                            sy = 0;
+                        } else {
+                            // Photo is taller than slot, crop photo height
+                            sWidth = photoCanvas.width;
+                            sHeight = sWidth / aspectRatioSlot;
+                            sx = 0;
+                            sy = (photoCanvas.height - sHeight) / 2;
+                        }
+
+                        // Draw the photo into the specific slot
+                        ctx.drawImage(photoCanvas, sx, sy, sWidth, sHeight, slot.x, slot.y, slot.width, slot.height);
+                    }
+                }
+
+                // 2. Draw the frame SECOND. This draws the frame *on top* of the photos,
+                //    so its solid parts (like the hedgehog and borders) will cover
+                //    any parts of the photos outside the transparent cutouts.
+                ctx.drawImage(frame, 0, 0);
+
+                currentPhotoDataURL = canvas.toDataURL('image/png'); // Output as PNG for transparency (if frame has it)
+                previewImage.src = currentPhotoDataURL;
+                previewContainer.style.display = 'block';
+            };
+            frame.onerror = (e) => {
+                alert("Error loading frame image. Make sure 'framee.png' is in the same folder as your HTML file and that its extension is not hidden by your operating system.");
+                console.error("Error loading frame:", e);
+            };
+            // IMPORTANT: This must match the filename and extension of your transparent PNG frame.
+            frame.src = "iniaja.png"; // Changed to .png as you confirmed it's a PNG.
+            frame.crossOrigin = "anonymous";
+        }
+
+        downloadButton.addEventListener('click', () => {
+            const a = document.createElement('a');
+            a.href = currentPhotoDataURL;
+            a.download = 'YoureDoingGood.png'; // Download as PNG
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            thankYouScreen.classList.add('show');
+        });
+
+        retakeButton.addEventListener('click', () => {
+            previewContainer.style.display = 'none';
+            video.style.display = 'block';
+            captureControls.style.display = 'block';
+            capturedCanvases = [];
+            currentPhotoDataURL = '';
+        });
+
+        restartButton.addEventListener('click', () => {
+            thankYouScreen.classList.remove('show');
+            retakeButton.click();
+        });
+
+        const emojis = ['🎂','✨','🎈','🥳','💛','🌟','🍰','👑'];
+        for (let i = 0; i < 15; i++) {
+            const emoji = document.createElement('div');
+            emoji.className = 'floating-emoji';
+            emoji.innerText = emojis [Math.floor(Math.random() * emojis.length)];
+            emoji.style.left = Math.random() * 100 + 'vw';
+            emoji.style.top = Math.random() * 100 + 'vh';
+            emoji.style.animationDuration = (4 + Math.random() * 4) + 's';
+            document.body.appendChild(emoji);
+        }
+    </script>
+</body>
+</html>
